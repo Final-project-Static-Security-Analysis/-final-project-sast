@@ -5,7 +5,7 @@
  * scans Python files, and sets outputs + annotations.
  */
 
-import { scanPythonCode, formatTerminalOutput } from "../src/scanner.js";
+import { scanPythonCode, formatTerminalOutput } from "./scanner.js";
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "fs";
 import { resolve, extname, join, relative } from "path";
 

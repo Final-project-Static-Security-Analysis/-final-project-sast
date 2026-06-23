@@ -4,7 +4,7 @@
  * Usage: pyscanner [options] <file.py|directory>
  */
 
-import { scanPythonCode, formatTerminalOutput } from "../src/scanner.js";
+import { scanPythonCode, formatTerminalOutput } from "./scanner.js";
 import { readFileSync, writeFileSync, statSync, readdirSync, existsSync } from "fs";
 import { resolve, extname, basename, join } from "path";
 
