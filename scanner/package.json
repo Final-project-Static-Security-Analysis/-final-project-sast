@@ -1,0 +1,24 @@
+{
+  "name": "pyscanner",
+  "version": "1.0.0",
+  "description": "Python SAST scanner for CWE Top 25 (2025) vulnerabilities, powered by Claude AI",
+  "type": "module",
+  "bin": {
+    "pyscanner": "./bin/pyscanner.js"
+  },
+  "main": "./src/scanner.js",
+  "exports": {
+    ".": "./src/scanner.js"
+  },
+  "scripts": {
+    "start": "node bin/pyscanner.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "keywords": ["security", "sast", "python", "cwe", "vulnerability", "static-analysis"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

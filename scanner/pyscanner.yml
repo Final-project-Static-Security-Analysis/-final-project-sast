@@ -1,0 +1,65 @@
+name: PyScanner Security Analysis
+
+on:
+  push:
+    branches: ["main", "master", "develop"]
+  pull_request:
+    branches: ["main", "master"]
+  schedule:
+    # Run weekly on Monday at 09:00 UTC
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write  # Required to upload SARIF to GitHub Code Scanning
+  actions: read
+
+jobs:
+  pyscanner:
+    name: Python Security Scan (CWE Top 25)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run PyScanner
+        id: pyscanner
+        uses: your-org/pyscanner@v1   # <-- replace with your action path
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          path: "."                    # Scan entire repo
+          min_severity: "low"          # Report everything
+          fail_on: "high"              # Fail CI on high/critical findings
+          output_format: "sarif"
+          sarif_file: "pyscanner-results.sarif"
+          annotate: "true"             # Show inline PR annotations
+
+      - name: Upload SARIF to GitHub Code Scanning
+        if: always()   # Upload even if scan found issues
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: pyscanner-results.sarif
+          category: pyscanner
+
+      - name: Print findings summary
+        if: always()
+        run: |
+          echo "## 🛡️ PyScanner Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔴 Critical | ${{ steps.pyscanner.outputs.critical_findings }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟠 High     | ${{ steps.pyscanner.outputs.high_findings }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟡 Medium   | ${{ steps.pyscanner.outputs.medium_findings }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔵 Low      | ${{ steps.pyscanner.outputs.low_findings }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total**   | **${{ steps.pyscanner.outputs.total_findings }}** |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload SARIF as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyscanner-sarif
+          path: pyscanner-results.sarif
+          retention-days: 30
