@@ -1,0 +1,83 @@
+{
+  "name": "Task",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Task title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "epic",
+        "story",
+        "task"
+      ],
+      "default": "task",
+      "description": "Item type: Epic > Story > Task"
+    },
+    "epic_id": {
+      "type": "string",
+      "description": "Parent epic ID (for stories and tasks)"
+    },
+    "story_id": {
+      "type": "string",
+      "description": "Parent story ID (for tasks)"
+    },
+    "assigned_to": {
+      "type": "string",
+      "enum": [
+        "zohar",
+        "or",
+        "both"
+      ],
+      "description": "Who is responsible"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "todo",
+        "in_progress",
+        "done"
+      ],
+      "default": "todo",
+      "description": "Task status"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium",
+      "description": "Priority"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "research",
+        "development",
+        "writing",
+        "presentation",
+        "testing"
+      ],
+      "description": "Category"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Due date"
+    }
+  },
+  "required": [
+    "title",
+    "assigned_to",
+    "status",
+    "type"
+  ]
+}
