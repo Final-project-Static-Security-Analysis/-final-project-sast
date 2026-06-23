@@ -112,6 +112,45 @@ pyscanner --output json --include-safe-code app.py
 | `1` | Findings at or above threshold |
 | `2` | Scanner error |
 
+## 🐳 Docker Usage
+
+Build the Docker image:
+
+```bash
+docker build -t pyscanner .
+```
+
+Scan a local Python file:
+
+```bash
+docker run -it --rm \
+  -e ANTHROPIC_API_KEY=<your_api_key> \
+  -v "$(pwd)/../samples:/workspace" \
+  pyscanner /workspace/test_vulnerable.py
+```
+
+Generate a SARIF report:
+
+```bash
+docker run -it --rm \
+  -e ANTHROPIC_API_KEY=<your_api_key> \
+  -v "$(pwd)/../samples:/workspace" \
+  pyscanner \
+  --output sarif \
+  --out-file /workspace/results.sarif \
+  /workspace/test_vulnerable.py
+```
+
+The Docker image allows running the scanner locally without installing Node.js or project dependencies. A valid Anthropic API key is required for vulnerability analysis.
+
+## Supported Execution Modes
+
+* 🖥️ CLI Scanner
+* 🐳 Docker Container
+* ⚙️ GitHub Action
+* 📄 SARIF Export
+* 🔍 GitHub Code Scanning Integration
+
 
 ## GitHub Action Usage
 
@@ -210,23 +249,19 @@ Full structured output with findings, AST trace, SARIF, and optionally safe code
 
 ## Architecture
 
-```
-pyscanner/
-├── src/
-│   └── scanner.js          # Core engine — prompts Claude, parses results
-├── bin/
-│   └── pyscanner.js        # CLI entry point
-├── github-action/
-│   ├── entrypoint.js       # GitHub Action runner
-│   ├── action.yml          # Action definition
-│   └── Dockerfile          # Container for the action
-├── .github/
-│   └── workflows/
-│       └── pyscanner.yml   # Example workflow
-└── test_vulnerable.py      # Test file with intentional vulnerabilities
+```text
+scanner/
+├── scanner.js        # Core analysis engine
+├── pyscanner.js      # CLI entry point
+├── entrypoint.js     # GitHub Action entry point
+├── action.yml        # GitHub Action definition
+├── Dockerfile        # Docker container
+├── package.json
+└── README.md
 ```
 
----
+
+
 
 ## License
 MIT
