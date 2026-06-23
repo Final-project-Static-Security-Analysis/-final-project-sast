@@ -1,0 +1,68 @@
+name: "PyScanner — Python Security Scanner"
+description: "SAST scanner for Python code covering CWE Top 25 (2025), powered by Claude AI"
+author: "your-org"
+
+branding:
+  icon: "shield"
+  color: "red"
+
+inputs:
+  anthropic_api_key:
+    description: "Anthropic API key (use secrets.ANTHROPIC_API_KEY)"
+    required: true
+
+  path:
+    description: "Path to scan (relative to repo root). Defaults to entire repo."
+    required: false
+    default: "."
+
+  min_severity:
+    description: "Minimum severity to report: low | medium | high | critical"
+    required: false
+    default: "low"
+
+  fail_on:
+    description: "Fail the action if findings at or above this severity: low | medium | high | critical | never"
+    required: false
+    default: "high"
+
+  output_format:
+    description: "Output format: sarif | json | text"
+    required: false
+    default: "sarif"
+
+  sarif_file:
+    description: "Path to write SARIF output file (for GitHub Code Scanning upload)"
+    required: false
+    default: "pyscanner-results.sarif"
+
+  annotate:
+    description: "Create GitHub annotations for findings (true | false)"
+    required: false
+    default: "true"
+
+outputs:
+  total_findings:
+    description: "Total number of findings"
+  critical_findings:
+    description: "Number of critical severity findings"
+  high_findings:
+    description: "Number of high severity findings"
+  medium_findings:
+    description: "Number of medium severity findings"
+  low_findings:
+    description: "Number of low severity findings"
+  sarif_file:
+    description: "Path to generated SARIF file"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  env:
+    ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
+    INPUT_PATH: ${{ inputs.path }}
+    INPUT_MIN_SEVERITY: ${{ inputs.min_severity }}
+    INPUT_FAIL_ON: ${{ inputs.fail_on }}
+    INPUT_OUTPUT_FORMAT: ${{ inputs.output_format }}
+    INPUT_SARIF_FILE: ${{ inputs.sarif_file }}
+    INPUT_ANNOTATE: ${{ inputs.annotate }}
