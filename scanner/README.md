@@ -3,7 +3,7 @@
 **Static Application Security Testing for Python, powered by Claude AI**
 Covers all **CWE Top 25 (2025)** vulnerability patterns.
 
----
+
 
 ## Features
 
@@ -15,7 +15,7 @@ Covers all **CWE Top 25 (2025)** vulnerability patterns.
 - 🔧 **Safe code suggestions** — auto-generated secure replacements
 - 📍 **PR Annotations** — inline findings on pull requests
 
----
+
 
 ## CWE Coverage
 
@@ -45,7 +45,7 @@ Covers all **CWE Top 25 (2025)** vulnerability patterns.
 
 > ⚠️ Memory-safety CWEs (787, 416, 125, 120, 121, 122) are less relevant to pure Python but flagged when using ctypes or C extensions.
 
----
+
 
 ## Installation (CLI)
 
@@ -72,7 +72,6 @@ export ANTHROPIC_API_KEY=sk-ant-your-key-here
 # Or add to ~/.bashrc / ~/.zshrc
 ```
 
----
 
 ## CLI Usage
 
@@ -113,7 +112,6 @@ pyscanner --output json --include-safe-code app.py
 | `1` | Findings at or above threshold |
 | `2` | Scanner error |
 
----
 
 ## GitHub Action Usage
 
@@ -208,7 +206,7 @@ Full structured output with findings, AST trace, SARIF, and optionally safe code
 ### SARIF
 [SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/) format — integrates directly with GitHub Code Scanning, VS Code, and other security tools.
 
----
+
 
 ## Architecture
 
