@@ -24,7 +24,7 @@ Static Application Security Testing (SAST) platform for detecting security vulne
 |  Scanner CLI | [Scanner Documentation](scanner/README.md) |
 |  Web Dashboard | [UI Documentation](ui/README.md) |
 |  GitHub Action | [GitHub Action Usage](scanner/README.md#github-action) |
-|  Docker Usage | [Docker Guide](scanner/README.md#docker) |
+|  Docker Usage | [Docker Guide](https://github.com/Final-project-Static-Security-Analysis/-final-project-sast/blob/main/scanner/README.md#-docker-usage) |
 |  Sample Applications | [Vulnerable Samples](samples/) |
 
 
