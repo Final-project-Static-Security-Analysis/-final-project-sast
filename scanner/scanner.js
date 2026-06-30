@@ -135,14 +135,16 @@ ${code}
 
 Perform thorough AST-style analysis. Check ALL CWE Top 25 patterns listed. Return ONLY valid JSON.`;
 
+  // Allon: consider using https://www.npmjs.com/package/@anthropic-ai/sdk
+  // This will both remove some boiler plate, and give you support for things like $ANTHROPIC_BASE_URL for free
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "anthropic-version": "2023-06-01",
+      "anthropic-version": "2023-06-01", // Allon: this should probably be controllable by the caller
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-4-6", // Allon: this should almost definitely be controllable by the caller
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: userMessage }],
