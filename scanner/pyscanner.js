@@ -8,8 +8,13 @@ import { scanPythonCode, formatTerminalOutput } from "./scanner.js";
 import { readFileSync, writeFileSync, statSync, readdirSync, existsSync } from "fs";
 import { resolve, extname, basename, join } from "path";
 
+// Allon: This duplicates data - instead, read the package.json and get the version from there:
+// import packageJson from './package.json' with { type: 'json' };
+// const VERSION = packageJson.version;
 const VERSION = "1.0.0";
 
+// Allon: There's a lot of boilreplate code here to handle CLI argument parsing.
+// Might be easier to use a 3rd party like https://www.npmjs.com/package/argparse to handle this
 function printHelp() {
   console.log(`
 PyScanner v${VERSION} — Python SAST Scanner (CWE Top 25, 2025)
@@ -61,6 +66,9 @@ function parseArgs(argv) {
 
   const severityOrder = ["low", "medium", "high", "critical"];
 
+  // Allon: specifically, there's a bug here in handling duplicate or contradicting arguments. E.g., think of:
+  // pyscanner --fail-on high --fail-on low app.py
+  // Only the last --fail-on will be handled.
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === "-h" || a === "--help") { printHelp(); process.exit(0); }
@@ -93,6 +101,7 @@ async function readStdin() {
   });
 }
 
+// Allon: Worth considering using async I/O, and returning a Promise from here
 function collectPythonFiles(pathArg) {
   const abs = resolve(pathArg);
   if (!existsSync(abs)) {
@@ -112,6 +121,7 @@ function collectPythonFiles(pathArg) {
     function walk(dir) {
       for (const entry of readdirSync(dir, { withFileTypes: true })) {
         const full = join(dir, entry.name);
+        // Allon: I'd externalize the directories to be ignored to a config option, with these as the default
         if (entry.isDirectory() && !entry.name.startsWith(".") && entry.name !== "node_modules" && entry.name !== "__pycache__") {
           walk(full);
         } else if (entry.isFile() && entry.name.endsWith(".py")) {
@@ -126,12 +136,17 @@ function collectPythonFiles(pathArg) {
 }
 
 function filterBySeverity(findings, minSeverity) {
+  // Allon: I'd extract a global severityOrder instead of redefining it multiple times
   const order = ["low", "medium", "high", "critical"];
   const minIdx = order.indexOf(minSeverity);
   return findings.filter((f) => order.indexOf(f.severity) >= minIdx);
 }
 
 function buildSummary(findings) {
+  // Allon: Here's a neat trick to initialize the summaries and not duplicate the severity names, if you have a global
+  // seveirtyOrder variable:
+  // const summary = Object.fromEntries(severityOrder.map(x => [x, 0]))
+  // And then you can add on the total
   const summary = { total: findings.length, critical: 0, high: 0, medium: 0, low: 0 };
   for (const f of findings) {
     if (summary[f.severity] !== undefined) summary[f.severity]++;
@@ -142,6 +157,7 @@ function buildSummary(findings) {
 async function main() {
   const opts = parseArgs(process.argv);
 
+  // Allon: This is part of the argument handling logic, it should be in `parseArgs`
   if (!opts.stdin && opts.files.length === 0) {
     printHelp();
     process.exit(0);
@@ -164,6 +180,7 @@ async function main() {
   } else {
     for (const f of opts.files) {
       for (const fp of collectPythonFiles(f)) {
+        // Allon: Consider using async-io here
         filePairs.push({ path: fp, code: readFileSync(fp, "utf8") });
       }
     }
@@ -185,6 +202,12 @@ async function main() {
     }
 
     try {
+      // Allon: this is going to be pretty slow. Instead, I'd return a promise from `scanPythonCode` and
+      // use Promise.all to wait on all of them in parallel
+      // Moreover, it makes sense to have a single system prompt and an array of use prompts, one per file,
+      // and send them all in a single request to the Anthropic API. This will reduce the number of API calls and
+      // speed up the scanning process.
+      // With the current design, the same system prompt is sent for every scanned file
       const result = await scanPythonCode(code, basename(fp));
 
       // Filter by severity
@@ -197,6 +220,11 @@ async function main() {
 
       allResults.push({ file: fp, result });
 
+      // Allon: you can break after finding the first vuln that has sufficient severity.
+      // Alternatively, a more concise way of writing this could be something like
+      // const hashHighSeverityFinding =
+      //   result.findings.some(f => failOnOrder.indexOf(f.severity) >= failOnIdx);
+
       // Check fail-on
       if (opts.failOn) {
         for (const f of result.findings) {
@@ -204,6 +232,8 @@ async function main() {
             hasHighSeverityFinding = true;
           }
         }
+      // Allon: You don't need the else branch.
+      // If opts.failOn is a false-y, failOnIdx is initialized to 0, and the block above still works
       } else if (result.findings.length > 0) {
         hasHighSeverityFinding = true;
       }
